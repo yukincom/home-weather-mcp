@@ -19,8 +19,8 @@ Ask Hermes for the weather at up to three places you choose. Powered by Open-Met
 You need macOS or Linux, Python 3.11 or newer, [uv](https://docs.astral.sh/uv/), and an internet connection.
 
 ```sh
-git clone https://github.com/yukincom/hermes_whether_mcp.git
-cd hermes_whether_mcp
+git clone https://github.com/yukincom/home-weather-mcp.git
+cd home-weather-mcp
 uv sync --frozen
 ```
 

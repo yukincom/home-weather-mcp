@@ -19,8 +19,8 @@
 macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/)、インターネット接続が必要です。
 
 ```sh
-git clone https://github.com/yukincom/hermes_whether_mcp.git
-cd hermes_whether_mcp
+git clone https://github.com/yukincom/home-weather-mcp.git
+cd home-weather-mcp
 uv sync --frozen
 ```
 
