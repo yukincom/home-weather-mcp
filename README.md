@@ -133,3 +133,13 @@ The software is licensed under the [MIT License](LICENSE). Weather data and upst
 - [Official MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk).
 
 The daily/hourly retrieval and rain/temperature advice originated from the StackChan_EX_Amigo weather service design. This independent version excludes its scheduler, conversation routing, journal, and weather cache. No personal location settings or client configuration backups are distributed.
+
+## Structured temperature range
+
+Today/tomorrow responses include this language-independent signal:
+
+```json
+{"basis": "daily_max_minus_min", "value_c": 10.0, "threshold_c": 7.0, "is_large": true}
+```
+
+The value is the daily maximum minus minimum temperature in Celsius, not a change from yesterday. `is_large` is true at **7°C or above**, false below it. Missing, non-finite, or inverted temperatures produce null for both `value_c` and `is_large`. Current-only responses omit the field. Both language summaries use this same rule. The assistant can use the signal to phrase a contextual reminder; the flag does not assess the user's health.

@@ -23,6 +23,9 @@ def create_server(config_path: Path, api=None, language="en"):
         "If geocoding is ambiguous, ask the user to choose a candidate. Never register examples automatically. "
         "Weather data is not saved. Save to Obsidian with other tools only if the user requests it. "
         "Preserve units, target dates and timestamps. Missing data never means clear skies or zero rain. "
+        "temperature_range contains the daily high-minus-low in Celsius and an inclusive 7-degree flag. "
+        "This is not a comparison with yesterday. A null flag means unknown. "
+        "Use this signal to tailor a conversational reminder to the user; do not infer their health status. "
         "Weather summaries are available in English and Japanese; language selects the displayed weather labels."
     ))
     read = ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=True)
@@ -121,6 +124,8 @@ def create_server(config_path: Path, api=None, language="en"):
         """Fetch fresh weather for a registered primary or alternate name.
 
         Omit alias to use the default (initially Tokyo). target: current, today, or tomorrow.
+        Forecasts include temperature_range: value_c, threshold_c, is_large (>= threshold),
+        and basis=daily_max_minus_min. Missing/invalid temperatures yield null value and flag.
         Includes rain intervals and temperature/umbrella advice. Today's rain covers the
         remaining hours. include_hourly=true adds hourly values. Units: Celsius, m/s, mm;
         timestamps use the location timezone. No weather storage, cache or scheduling.

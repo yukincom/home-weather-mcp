@@ -30,6 +30,7 @@ def test_english_and_japanese_use_same_data(tmp_path):
     now = datetime(2026, 9, 5, 12, tzinfo=ZoneInfo("Asia/Tokyo"))
     en = build_result(location, data, [], "today", now=now, language="en")
     ja = build_result(location, data, [], "today", now=now, language="ja")
+    assert en["temperature_range"] == ja["temperature_range"]
     assert en["summary"] == en["summary_en"] == ja["summary_en"]
     assert ja["summary"] == en["summary_ja"]
     assert "umbrella" in en["summary"] and "傘" in ja["summary"]

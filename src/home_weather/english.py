@@ -50,8 +50,9 @@ def english_summary(result):
             parts.append("It looks hot.")
         else:
             parts.append("Very hot; take care when going out.")
-    if high is not None and low is not None and high - low >= 7:
-        parts.append(f"The daily temperature range is {high-low:.0f}°C.")
+    temperature = result["temperature_range"]
+    if temperature["is_large"]:
+        parts.append(f"The daily temperature range is {temperature['value_c']:.0f}°C.")
     return " ".join(parts)
 
 

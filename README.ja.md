@@ -70,3 +70,13 @@ uv build
 GitHub Actionsはpushとpull requestでLinux/macOS、Python 3.11/3.14のテストとビルドを実行します。天気APIはテスト内で模擬し、外部APIへの接続やキーは不要です。GitHub上の結果はアップロード後に確認できます。
 
 ソフトウェアは[MITライセンス](LICENSE)。天気データは[Open-Meteo](https://open-meteo.com/)、地名はGeoNamesと必要に応じて国土地理院を使用し、それぞれの利用条件に従います。
+
+## 寒暖差の構造化データ
+
+今日・明日の予報には`temperature_range`を返します。
+
+```json
+{"basis": "daily_max_minus_min", "value_c": 10.0, "threshold_c": 7.0, "is_large": true}
+```
+
+日最高気温−日最低気温の差で、前日との差ではありません。7℃以上で`is_large=true`、7℃未満で`false`。温度が欠損・不正の場合は`value_c`と`is_large`が`null`になります。現在値だけの取得にはこの項目は付きません。要約文も同じ判定を使い、会話に合う体調への声かけはHermesに任せます。

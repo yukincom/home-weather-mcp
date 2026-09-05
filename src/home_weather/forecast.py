@@ -5,6 +5,7 @@ No scheduler, journal, weather cache, or Hermes imports.
 
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+from .temperature import temperature_range
 from .english import localize
 
 WEATHER_CODE = {
@@ -97,8 +98,9 @@ def daily_summary(daily, intervals, points, label):
             parts.append("暑そうだよ。")
         else:
             parts.append("かなり暑いので出かけるときは気をつけてね。")
-    if number(high) and number(low) and high - low >= 7:
-        parts.append(f"寒暖差は{high - low:.0f}度あります。")
+    temperature = temperature_range(high, low)
+    if temperature["is_large"]:
+        parts.append(f"寒暖差は{temperature['value_c']:.0f}度あります。")
     return "".join(parts)
 
 
@@ -132,6 +134,7 @@ def build_result(location, data, warnings, target, include_hourly=False, now=Non
     intervals = rain_intervals(points)
     result.update({
         "daily": daily, "daily_units": data.get("daily_units", {}),
+        "temperature_range": temperature_range(daily["temperature_2m_max"], daily["temperature_2m_min"]),
         "rain_intervals": intervals, "rain_scope": "このあと" if target == "today" else "一日全体",
         "hourly_detail_available": bool(rain_points),
         "summary_ja": daily_summary(daily, intervals, rain_points, "今日" if target == "today" else "明日"),
