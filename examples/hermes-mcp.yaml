@@ -1,0 +1,17 @@
+# Merge this entry into your existing Hermes config.yaml.
+# Replace /absolute/path/home-weather-mcp with your checkout's absolute path.
+mcp_servers:
+  home_weather:
+    command: /absolute/path/home-weather-mcp/.venv/bin/python
+    args:
+      - -m
+      - home_weather.server
+      - --language
+      - en
+    enabled: true
+    timeout: 60
+    connect_timeout: 20
+    supports_parallel_tool_calls: false
+    tools:
+      resources: false
+      prompts: false

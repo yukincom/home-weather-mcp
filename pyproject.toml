@@ -1,0 +1,25 @@
+[project]
+name = "home-weather-mcp"
+version = "0.2.0"
+description = "On-demand Open-Meteo weather for up to three named places"
+requires-python = ">=3.11"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["mcp>=1.26,<2", "httpx>=0.28,<0.29"]
+
+[project.scripts]
+home-weather-mcp = "home_weather.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/home_weather"]
+
+[dependency-groups]
+dev = ["pytest>=8,<9"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

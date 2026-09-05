@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "locations": [
+    {
+      "alias": "Tokyo",
+      "additional_aliases": ["東京"],
+      "place_name": "Tokyo, Japan",
+      "latitude": 35.6895,
+      "longitude": 139.69171,
+      "timezone": "Asia/Tokyo",
+      "is_default": true
+    }
+  ]
+}

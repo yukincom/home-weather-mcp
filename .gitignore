@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+locations.json
+locations.json.lock
+config-backup-*.yaml
+dist/
+.DS_Store
+.coverage
+htmlcov/
+.env
+.env.*
