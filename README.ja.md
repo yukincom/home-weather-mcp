@@ -2,22 +2,29 @@
 
 [English](README.md) · [MITライセンス](LICENSE)
 
-Open-Meteoを使い、最大3地点の天気を必要なときだけ取得する独立したstdio MCPサーバーです。Hermes本体やその内部APIには依存しません。
+自分で選んだ最大3地点の天気を、Hermesとの会話で確認できます。Open-Meteoを利用し、HermesをはじめMCP対応のクライアントで使えます。
 
-初期地点は**東京**、呼び出し名は`Tokyo`と`東京`です。場所を省略するとデフォルト地点を使用します。英語・日本語に対応し、地点・呼び出し名・別名・デフォルトは会話から変更できます。
+**初期地点は東京**です。日本語・英語に対応しています。Open-Meteoの非商用サービスを利用する場合、APIキーは不要です。
+
+## できること
+
+- 現在・今日・明日の天気を確認する。
+- 気温、湿度、風、降水確率、雨が降りそうな時間帯を聞く。
+- 傘の案内や、一日の寒暖差が大きいときの声かけを受ける。
+- 「自宅」「職場」などの呼び名や別名で地点を登録し、会話から変更する。
+- 場所を指定しなかったときに使う地点を選ぶ。
 
 ## 導入
 
-macOS/Linux、Python 3.11以上、uvが必要です。
+macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/)、インターネット接続が必要です。
 
 ```sh
+git clone https://github.com/yukincom/hermes_whether_mcp.git
+cd hermes_whether_mcp
 uv sync --frozen
-.venv/bin/python -m home_weather.server --language ja
 ```
 
-これはMCPクライアントから呼び出すプロセスです。直接実行すると標準入出力で接続を待ちます。
-
-Hermesの`config.yaml`の既存の`mcp_servers`へ追加してください。パスは実際の絶対パスに置き換えます。
+Hermesの`config.yaml`の既存の`mcp_servers`へ次の項目を追加してください。`/absolute/path/home-weather-mcp`は取得したフォルダの絶対パスに置き換え、既存の接続設定はそのまま残します。
 
 ```yaml
 mcp_servers:
@@ -33,13 +40,11 @@ mcp_servers:
       prompts: false
 ```
 
-追加後にMCPを再読み込み、またはHermesを再起動してください。地点変更時には再起動不要です。
+追加後にMCPを再読み込み、またはHermesを再起動してください。その後の地点変更は再起動なしで反映されます。英語で使う場合は設定の`ja`を`en`に変えてください。
 
-地点設定の保存先は`~/.config/home-weather-mcp/locations.json`です。`--config`または`HOME_WEATHER_CONFIG`で変更できます。設定ファイルがない場合は東京を使い、最初の設定変更でファイルを作ります。明示的に空にした設定へ東京を再追加することはありません。
+## 話しかけてみる
 
-## 指示例
-
-- 「今日の天気は？」
+- 「今日の天気は？」— 場所を省略すると、初期設定では東京を使います。
 - 「大阪市を『職場』として登録して。別名は『オフィス』」
 - 「職場の明日の天気は？」
 - 「職場の登録地点を京都市に変更して」
@@ -47,36 +52,10 @@ mcp_servers:
 - 「東京の呼び名を自宅に変えて、東京も別名として残して」
 - 「今日の天気を英語で教えて」
 
-地名検索で候補が複数ある場合は候補選択後に保存します。海外は`country_code`を指定してください（既定`JP`）。地名変更では座標を再検索します。別名一覧の変更は置換で、省略した項目は維持します。
+登録できるのは最大3地点です。海外の場所は国名も一緒に伝えてください。候補が複数見つかった場合は、目的の場所を選べます。
 
-## 機能
+## ライセンス・出典
 
-- 現在／今日／明日の天気。気温、体感温度、湿度、風、降水確率、雨の時間帯と傘・気温・寒暖差の案内。
-- 今日の雨の時間帯はこのあと、明日は一日全体。日別の最高・最低気温と最大降水確率は一日全体です。
-- 定時取得、天気キャッシュ、天気ファイル保存、Obsidian書き込みはありません。保存するのは地点設定だけです。会話履歴の保存はクライアント側の設定に従います。
-- `weather_get`の`language=en|ja`で切替。日別予報には`summary_en`・`summary_ja`と選択言語の`summary`を返します。ツール説明・エラーは英語です。
-- 接続失敗・タイムアウトは1回再試行。時間別の取得だけが失敗した場合は警告付きの日別予報を返します。
+ソフトウェアは[MITライセンス](LICENSE)です。天気は[Open-Meteo](https://open-meteo.com/)を利用し、[同サービスの利用条件・出典表示](https://open-meteo.com/en/pricing)に従います。地名検索には[Open-Meteo経由のGeoNames](https://open-meteo.com/en/docs/geocoding-api)と、必要に応じて[国土地理院](https://github.com/gsi-cyberjapan/gsimaps/issues/29)を使います。
 
-ツール一覧・引数の詳細は[英語README](README.md#tools)を参照してください。
-
-## テスト・CI
-
-```sh
-uv sync --frozen
-uv run --frozen pytest -q
-uv build
-```
-
-GitHub Actionsはpushとpull requestでLinux/macOS、Python 3.11/3.14のテストとビルドを実行します。天気APIはテスト内で模擬し、外部APIへの接続やキーは不要です。GitHub上の結果はアップロード後に確認できます。
-
-ソフトウェアは[MITライセンス](LICENSE)。天気データは[Open-Meteo](https://open-meteo.com/)、地名はGeoNamesと必要に応じて国土地理院を使用し、それぞれの利用条件に従います。
-
-## 寒暖差の構造化データ
-
-今日・明日の予報には`temperature_range`を返します。
-
-```json
-{"basis": "daily_max_minus_min", "value_c": 10.0, "threshold_c": 7.0, "is_large": true}
-```
-
-日最高気温−日最低気温の差で、前日との差ではありません。7℃以上で`is_large=true`、7℃未満で`false`。温度が欠損・不正の場合は`value_c`と`is_large`が`null`になります。現在値だけの取得にはこの項目は付きません。要約文も同じ判定を使い、会話に合う体調への声かけはHermesに任せます。
+エージェント・開発向けの資料：[Agent.md](Agent.md)。
