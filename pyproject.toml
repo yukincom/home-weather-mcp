@@ -30,4 +30,4 @@ required-version = ">=0.13.4"
 [tool.hatch.build.hooks.custom]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "native/src", "native/Cargo.toml", "native/Cargo.lock", "hatch_build.py", "pyproject.toml", "uv.lock", "LICENSE", "README*", "Agent.md", "docs", "examples", "scripts", "tests", ".github/workflows/ci.yml"]
+include = ["src", "native/src", "native/resources", "native/tests", "native/examples", "native/Cargo.toml", "native/Cargo.lock", "hatch_build.py", "pyproject.toml", "uv.lock", "LICENSE", "README*", "Agent.md", "docs", "examples", "scripts", "tests", ".github/workflows/ci.yml"]

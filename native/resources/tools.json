@@ -1,0 +1,270 @@
+[
+  {
+    "name": "weather_list_locations",
+    "description": "List up to three locations, their primary/alternate names, coordinates, and default status.",
+    "inputSchema": {
+      "properties": {},
+      "title": "weather_list_locationsArguments",
+      "type": "object"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "weather_search_places",
+    "description": "Search a real place name for geographic candidates without changing settings.\n\n        Use country_code (JP by default) for the country. Check administrative regions\n        when names are ambiguous. Japanese ward names use GSI as a fallback.\n\n        ",
+    "inputSchema": {
+      "properties": {
+        "place_name": {
+          "title": "Place Name",
+          "type": "string"
+        },
+        "country_code": {
+          "default": "JP",
+          "title": "Country Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "place_name"
+      ],
+      "title": "weather_search_placesArguments",
+      "type": "object"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "weather_set_location",
+    "description": "Add a location requested by the user. Only location settings are persisted.\n\n        Example: alias=Office, place_name=Osaka, Japan, country_code=JP.\n        At most three locations. additional_aliases supplies alternate names.\n        make_default=true selects this location when alias is omitted in weather_get.\n        Multiple geocoding matches are returned without saving; pass a selected candidate_id\n        as a string. Use weather_update_location to modify an existing location.\n\n        ",
+    "inputSchema": {
+      "properties": {
+        "alias": {
+          "title": "Alias",
+          "type": "string"
+        },
+        "place_name": {
+          "title": "Place Name",
+          "type": "string"
+        },
+        "additional_aliases": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Additional Aliases"
+        },
+        "make_default": {
+          "default": false,
+          "title": "Make Default",
+          "type": "boolean"
+        },
+        "candidate_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Candidate Id"
+        },
+        "country_code": {
+          "default": "JP",
+          "title": "Country Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alias",
+        "place_name"
+      ],
+      "title": "weather_set_locationArguments",
+      "type": "object"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": false,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "weather_update_location",
+    "description": "Update an existing location without adding a slot.\n\n        alias identifies the location using any current name. Changing place_name resolves\n        new coordinates. new_alias renames the primary alias. additional_aliases replaces\n        the alternate names; [] removes them. Omitted fields remain unchanged.\n        make_default=true selects this place as the default. Ambiguous geocoding returns\n        candidates without saving. Retry with the selected candidate_id as a string.\n\n        ",
+    "inputSchema": {
+      "properties": {
+        "alias": {
+          "title": "Alias",
+          "type": "string"
+        },
+        "place_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Name"
+        },
+        "new_alias": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "New Alias"
+        },
+        "additional_aliases": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Additional Aliases"
+        },
+        "make_default": {
+          "default": false,
+          "title": "Make Default",
+          "type": "boolean"
+        },
+        "candidate_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Candidate Id"
+        },
+        "country_code": {
+          "default": "JP",
+          "title": "Country Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alias"
+      ],
+      "title": "weather_update_locationArguments",
+      "type": "object"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": true
+    }
+  },
+  {
+    "name": "weather_remove_location",
+    "description": "Remove a location as requested. Removing the default selects the first remaining location.",
+    "inputSchema": {
+      "properties": {
+        "alias": {
+          "title": "Alias",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alias"
+      ],
+      "title": "weather_remove_locationArguments",
+      "type": "object"
+    },
+    "annotations": {
+      "readOnlyHint": false,
+      "destructiveHint": true,
+      "openWorldHint": false
+    }
+  },
+  {
+    "name": "weather_get",
+    "description": "Fetch fresh weather for a registered primary or alternate name.\n\n        Omit alias to use the default (initially Tokyo). target: current, today, or tomorrow.\n        Forecasts include temperature_range: value_c, threshold_c, is_large (>= threshold),\n        and basis=daily_max_minus_min. Missing/invalid temperatures yield null value and flag.\n        Includes rain intervals and temperature/umbrella advice. Today's rain covers the\n        remaining hours. include_hourly=true adds hourly values. Units: Celsius, m/s, mm;\n        timestamps use the location timezone. No weather storage, cache or scheduling.\n        language=en|ja overrides the server default. Both summary_en and summary_ja are\n        included for forecasts; summary and weather labels use the selected language.\n\n        ",
+    "inputSchema": {
+      "properties": {
+        "alias": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alias"
+        },
+        "target": {
+          "default": "today",
+          "enum": [
+            "current",
+            "today",
+            "tomorrow"
+          ],
+          "title": "Target",
+          "type": "string"
+        },
+        "include_hourly": {
+          "default": false,
+          "title": "Include Hourly",
+          "type": "boolean"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "enum": [
+                "en",
+                "ja"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language"
+        }
+      },
+      "title": "weather_getArguments",
+      "type": "object"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "openWorldHint": true
+    }
+  }
+]

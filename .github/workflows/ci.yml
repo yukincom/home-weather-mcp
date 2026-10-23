@@ -29,6 +29,10 @@ jobs:
           enable-cache: true
       - name: Install Rust
         run: rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1
+      - name: Fetch locked Rust dependencies
+        run: cargo fetch --manifest-path native/Cargo.toml --locked
+      - name: Build Rust contract test host
+        run: cargo build --manifest-path native/Cargo.toml --example contract_server --locked --offline
       - name: Test Rust core
         run: cargo test --manifest-path native/Cargo.toml --locked --offline
       - name: Install locked dependencies
