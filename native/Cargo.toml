@@ -1,0 +1,11 @@
+[package]
+name = "home-weather-core"
+version = "0.3.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+panic = "abort"

@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from .temperature import temperature_range
 from .english import localize
+from .native import number, rain_code, rain_likely, heat_category
 
 WEATHER_CODE = {
     0: "快晴", 1: "晴れ", 2: "晴れ時々くもり", 3: "くもり", 45: "霧", 48: "霧",
@@ -15,12 +16,6 @@ WEATHER_CODE = {
     71: "小雪", 73: "雪", 75: "大雪", 77: "霧雪", 80: "にわか雨", 81: "にわか雨",
     82: "強いにわか雨", 85: "にわか雪", 86: "強いにわか雪", 95: "雷雨", 96: "雷雨", 99: "激しい雷雨",
 }
-RAIN_CODES = {51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99}
-
-
-def number(value):
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
-
 
 def value(series, key, index):
     values = series.get(key, [])
@@ -43,14 +38,7 @@ def hourly_points(data, target_date, now, remaining_only):
         )}
         point["time"] = dt.isoformat()
         point["weather"] = weather_text(point["weather_code"])
-        probability = point["precipitation_probability"]
-        point["rain_likely"] = (
-            point["weather_code"] in RAIN_CODES
-            or any(number(point[key]) and point[key] > 0 for key in ("rain", "showers"))
-            or (number(probability) and probability >= 50)
-        )
-        if not any(number(point[key]) for key in ("weather_code", "precipitation_probability", "rain", "showers")):
-            point["rain_likely"] = None
+        point["rain_likely"] = rain_likely(point["weather_code"], point["precipitation_probability"], point["rain"], point["showers"])
         points.append(point)
     return points
 
@@ -84,20 +72,11 @@ def daily_summary(daily, intervals, points, label):
             end_label = "翌日0時" if end.date() != start.date() else f"{end.hour}時"
             timings.append(f"{start.hour}時〜{end_label}ごろ")
         parts.append("雨が降りそうな時間帯は" + "、".join(timings) + "。傘を持って行ってね。")
-    elif not points and (daily["weather_code"] in RAIN_CODES or (number(probability) and probability >= 50)):
+    elif not points and (rain_code(daily["weather_code"]) or (number(probability) and probability >= 50)):
         parts.append("雨の可能性があります。時間帯は不明ですが、傘を持って行ってね。")
     high, low = daily["temperature_2m_max"], daily["temperature_2m_min"]
     if number(high):
-        if high <= 10:
-            parts.append("かなり寒いので暖かくしてね。")
-        elif high <= 18:
-            parts.append("寒そうだよ。")
-        elif high <= 26:
-            parts.append("過ごしやすい気温だね。")
-        elif high <= 29:
-            parts.append("暑そうだよ。")
-        else:
-            parts.append("かなり暑いので出かけるときは気をつけてね。")
+        parts.append(("かなり寒いので暖かくしてね。", "寒そうだよ。", "過ごしやすい気温だね。", "暑そうだよ。", "かなり暑いので出かけるときは気をつけてね。")[heat_category(high)])
     temperature = temperature_range(high, low)
     if temperature["is_large"]:
         parts.append(f"寒暖差は{temperature['value_c']:.0f}度あります。")

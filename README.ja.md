@@ -16,7 +16,7 @@
 
 ## 導入
 
-macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/) >= 0.13.4、インターネット接続が必要です。
+macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/) >= 0.13.4、[Rust](https://rust-lang.org/tools/install/)（cargo）、インターネット接続が必要です。
 
 ```sh
 git clone https://github.com/yukincom/home-weather-mcp.git
@@ -62,3 +62,5 @@ mcp_servers:
 エージェント・開発向けの資料：[Agent.md](Agent.md)。
 
 Security update / セキュリティ更新: [2026-10-23 migration](docs/2026-10-23-security.md).
+
+Rust migration / Rust移行: [0.3.0 notes](docs/2026-10-23-rust.md).

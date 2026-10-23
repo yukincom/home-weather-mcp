@@ -16,7 +16,7 @@ Ask Hermes for the weather at up to three places you choose. Powered by Open-Met
 
 ## Setup
 
-You need macOS or Linux, Python 3.11 or newer, [uv](https://docs.astral.sh/uv/) >= 0.13.4, and an internet connection.
+You need macOS or Linux, Python 3.11 or newer, [uv](https://docs.astral.sh/uv/) >= 0.13.4, [Rust](https://rust-lang.org/tools/install/) (cargo), and an internet connection.
 
 ```sh
 git clone https://github.com/yukincom/home-weather-mcp.git
@@ -62,3 +62,5 @@ The software uses the [MIT License](LICENSE). Weather data is provided by [Open-
 Agent and development reference: [Agent.md](Agent.md).
 
 Security update / セキュリティ更新: [2026-10-23 migration](docs/2026-10-23-security.md).
+
+Rust migration / Rust移行: [0.3.0 notes](docs/2026-10-23-rust.md).

@@ -4,6 +4,7 @@ This document is for agents using or maintaining Home Weather MCP. Human-facing 
 
 ## Runtime and configuration
 
+Source builds require Rust/cargo; the native weather core is mandatory (no Python fallback).
 Run this standalone stdio MCP server in its own virtual environment. It does not import or modify Hermes internals. macOS/Linux are supported; location-setting writes use POSIX file locks.
 
 ```sh
@@ -61,7 +62,9 @@ Location updates preserve omitted fields. `additional_aliases` replaces the alte
 ## Development and CI
 
 ```sh
+cargo test --manifest-path native/Cargo.toml --locked --offline
 uv sync --frozen
+uv run --frozen python scripts/check_security.py
 uv run --frozen pytest -q
 uv build
 uv run --frozen python scripts/check_dist.py

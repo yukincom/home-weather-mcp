@@ -1,6 +1,7 @@
 """English presentation for the same weather data used by Japanese summaries."""
 
 from datetime import datetime
+from .native import rain_code, heat_category
 
 WEATHER = {
     0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
@@ -37,19 +38,10 @@ def english_summary(result):
             ending = "00:00 next day" if end.date() != start.date() else end.strftime("%H:%M")
             intervals.append(f"{start:%H:%M}–{ending}")
         parts.append("Rain is possible around " + ", ".join(intervals) + ". Bring an umbrella.")
-    elif not result["hourly_detail_available"] and (daily["weather_code"] in {51,53,55,56,57,61,63,65,66,67,80,81,82,95,96,99} or (chance is not None and chance >= 50)):
+    elif not result["hourly_detail_available"] and (rain_code(daily["weather_code"]) or (chance is not None and chance >= 50)):
         parts.append("Rain is possible, but timing is unknown. Bring an umbrella.")
     if high is not None:
-        if high <= 10:
-            parts.append("Very cold; dress warmly.")
-        elif high <= 18:
-            parts.append("It looks cold.")
-        elif high <= 26:
-            parts.append("Mild temperatures expected.")
-        elif high <= 29:
-            parts.append("It looks hot.")
-        else:
-            parts.append("Very hot; take care when going out.")
+        parts.append(("Very cold; dress warmly.", "It looks cold.", "Mild temperatures expected.", "It looks hot.", "Very hot; take care when going out.")[heat_category(high)])
     temperature = result["temperature_range"]
     if temperature["is_large"]:
         parts.append(f"The daily temperature range is {temperature['value_c']:.0f}°C.")

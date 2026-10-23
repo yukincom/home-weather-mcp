@@ -11,3 +11,8 @@ dist/
 htmlcov/
 .env
 .env.*
+
+work/
+native/target/
+src/home_weather/*.dylib
+src/home_weather/*.so

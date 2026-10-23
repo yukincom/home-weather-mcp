@@ -1,20 +1,18 @@
-"""Deterministic daily temperature-range signal for conversational advice."""
-
+"""Public result adapter for the required Rust temperature-range calculation."""
 import math
+from .native import _lib, scalar
 
 THRESHOLD_C = 7.0
 
 
 def temperature_range(high, low):
-    valid = all(
-        isinstance(value, (int, float)) and not isinstance(value, bool)
-        and math.isfinite(value)
-        for value in (high, low)
-    )
-    delta = round(high - low, 10) if valid and high >= low else None
+    if type(high) is int and type(low) is int and abs(high - low) > 2**53:
+        raise ValueError("Temperature difference exceeds exact binary64 integer range")
+    delta = _lib.weather_temperature_range(scalar(high), scalar(low))
+    flag = _lib.weather_is_large(delta)
     return {
         "basis": "daily_max_minus_min",
-        "value_c": delta,
+        "value_c": delta if math.isfinite(delta) else None,
         "threshold_c": THRESHOLD_C,
-        "is_large": delta >= THRESHOLD_C if delta is not None else None,
+        "is_large": None if flag == -1 else bool(flag),
     }

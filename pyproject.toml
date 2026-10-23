@@ -1,6 +1,6 @@
 [project]
 name = "home-weather-mcp"
-version = "0.2.0"
+version = "0.3.0"
 description = "On-demand Open-Meteo weather for up to three named places"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -12,7 +12,7 @@ dependencies = ["mcp>=1.26,<2", "httpx>=0.28,<0.29", "certifi>=2026.10.19", "pac
 home-weather-mcp = "home_weather.server:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "packaging>=24"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
@@ -26,3 +26,8 @@ testpaths = ["tests"]
 
 [tool.uv]
 required-version = ">=0.13.4"
+
+[tool.hatch.build.hooks.custom]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "native/src", "native/Cargo.toml", "native/Cargo.lock", "hatch_build.py", "pyproject.toml", "uv.lock", "LICENSE", "README*", "Agent.md", "docs", "examples", "scripts", "tests", ".github/workflows/ci.yml"]
