@@ -2,10 +2,8 @@
 # Replace /absolute/path/home-weather-mcp with your checkout's absolute path.
 mcp_servers:
   home_weather:
-    command: /absolute/path/home-weather-mcp/.venv/bin/python
+    command: /absolute/path/home-weather-mcp/.install/bin/home-weather-mcp
     args:
-      - -m
-      - home_weather.server
       - --language
       - en
     enabled: true

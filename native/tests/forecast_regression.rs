@@ -67,7 +67,7 @@ fn python_temperature_rounding_and_thresholds() {
         serde_json::from_str(include_str!("fixtures/temperature.json")).unwrap();
     for case in cases {
         assert_eq!(
-            home_weather_core::forecast::temperature(&case[0], &case[1]),
+            home_weather_core::forecast::temperature(&case[0], &case[1]).unwrap(),
             case[2]
         );
     }
@@ -83,4 +83,35 @@ fn existing_unicode_casefold_mappings() {
             "{original:?}"
         );
     }
+}
+
+#[test]
+fn oversized_integer_temperatures_are_rejected_before_rounding() {
+    use serde_json::json;
+    for (high, low) in [
+        (9007199254740993i64, 9007199254740992i64),
+        (9007199254740992, -1),
+    ] {
+        let error =
+            home_weather_core::forecast::temperature(&json!(high), &json!(low)).unwrap_err();
+        assert!(error.to_string().contains("binary64"));
+        let result = build_result(
+            json!({"timezone":"Asia/Tokyo"}),
+            json!({"daily":{"time":["2026-09-05"],"temperature_2m_max":[high],"temperature_2m_min":[low]}}),
+            vec![],
+            "today",
+            false,
+            "en",
+            Some("2026-09-05T00:00:00Z".parse().unwrap()),
+        );
+        assert!(result.unwrap_err().to_string().contains("binary64"));
+    }
+    assert_eq!(
+        home_weather_core::forecast::temperature(
+            &json!(9007199254740992i64),
+            &json!(9007199254740991i64)
+        )
+        .unwrap()["value_c"],
+        1.0
+    );
 }

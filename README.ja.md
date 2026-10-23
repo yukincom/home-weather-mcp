@@ -16,13 +16,12 @@
 
 ## 導入
 
-macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/) >= 0.13.4、[Rust](https://rust-lang.org/tools/install/)（cargo）、インターネット接続が必要です。
+ビルドにはmacOSまたはLinux、[Rust](https://rust-lang.org/tools/install/)（cargo）、インターネット接続が必要です。導入後の実行にPythonやuvは不要です。LinuxではCコンパイラ・pkg-config・OpenSSL開発用ヘッダも必要です。
 
 ```sh
 git clone https://github.com/yukincom/home-weather-mcp.git
 cd home-weather-mcp
-uv sync --frozen
-uv run --frozen python scripts/check_security.py
+cargo install --path native --locked --root .install
 ```
 
 Hermesの`config.yaml`の既存の`mcp_servers`へ次の項目を追加してください。`/absolute/path/home-weather-mcp`は取得したフォルダの絶対パスに置き換え、既存の接続設定はそのまま残します。
@@ -30,8 +29,8 @@ Hermesの`config.yaml`の既存の`mcp_servers`へ次の項目を追加してく
 ```yaml
 mcp_servers:
   home_weather:
-    command: /absolute/path/home-weather-mcp/.venv/bin/python
-    args: ["-m", "home_weather.server", "--language", "ja"]
+    command: /absolute/path/home-weather-mcp/.install/bin/home-weather-mcp
+    args: ["--language", "ja"]
     enabled: true
     timeout: 60
     connect_timeout: 20
@@ -61,6 +60,4 @@ mcp_servers:
 
 エージェント・開発向けの資料：[Agent.md](Agent.md)。
 
-Security update / セキュリティ更新: [2026-10-23 migration](docs/2026-10-23-security.md).
-
-Rust migration / Rust移行: [0.3.0 notes](docs/2026-10-23-rust.md).
+Rust migration / Rust移行: [0.4.0 notes](docs/2026-10-23-full-rust.md).

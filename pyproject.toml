@@ -1,22 +1,9 @@
 [project]
-name = "home-weather-mcp"
-version = "0.3.0"
-description = "On-demand Open-Meteo weather for up to three named places"
+name = "home-weather-mcp-tests"
+version = "0.4.0"
+description = "External protocol tests for the Rust weather server"
 requires-python = ">=3.11"
-readme = "README.md"
-license = "MIT"
-license-files = ["LICENSE"]
-dependencies = ["mcp>=1.26,<2", "httpx>=0.28,<0.29", "certifi>=2026.10.19", "packaging>=24"]
-
-[project.scripts]
-home-weather-mcp = "home_weather.server:main"
-
-[build-system]
-requires = ["hatchling", "packaging>=24"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/home_weather"]
+dependencies = ["mcp>=1.26,<2", "certifi>=2026.10.19", "packaging>=24"]
 
 [dependency-groups]
 dev = ["pytest>=8,<9"]
@@ -25,9 +12,5 @@ dev = ["pytest>=8,<9"]
 testpaths = ["tests"]
 
 [tool.uv]
+package = false
 required-version = ">=0.13.4"
-
-[tool.hatch.build.hooks.custom]
-
-[tool.hatch.build.targets.sdist]
-include = ["src", "native/src", "native/resources", "native/tests", "native/examples", "native/Cargo.toml", "native/Cargo.lock", "hatch_build.py", "pyproject.toml", "uv.lock", "LICENSE", "README*", "Agent.md", "docs", "examples", "scripts", "tests", ".github/workflows/ci.yml"]

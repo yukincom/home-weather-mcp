@@ -19,12 +19,32 @@ fn value(series: &Value, key: &str, index: usize) -> Value {
         .cloned()
         .unwrap_or(Value::Null)
 }
-fn numeric(value: &Value) -> f64 {
-    value.as_f64().unwrap_or(f64::NAN)
+fn integer(value: &Value) -> Option<i128> {
+    value
+        .as_i64()
+        .map(i128::from)
+        .or_else(|| value.as_u64().map(i128::from))
 }
-pub fn temperature(high: &Value, low: &Value) -> Value {
-    let delta = weather_temperature_range(numeric(high), numeric(low));
-    json!({"basis":"daily_max_minus_min","value_c":if delta.is_finite(){Some(delta)}else{None},"threshold_c":7.0,"is_large":match weather_is_large(delta){-1=>None,n=>Some(n==1)}})
+fn numeric(value: &Value) -> Result<f64> {
+    if let Some(number) = integer(value) {
+        ensure!(
+            number.abs() <= (1i128 << 53),
+            "Weather integers must be exactly representable in binary64 (abs <= 2**53)"
+        );
+    }
+    Ok(value.as_f64().unwrap_or(f64::NAN))
+}
+pub fn temperature(high: &Value, low: &Value) -> Result<Value> {
+    if let (Some(high), Some(low)) = (integer(high), integer(low)) {
+        ensure!(
+            (high - low).abs() <= (1i128 << 53),
+            "Temperature difference exceeds exact binary64 integer range"
+        );
+    }
+    let delta = weather_temperature_range(numeric(high)?, numeric(low)?);
+    Ok(
+        json!({"basis":"daily_max_minus_min","value_c":if delta.is_finite(){Some(delta)}else{None},"threshold_c":7.0,"is_large":match weather_is_large(delta){-1=>None,n=>Some(n==1)}}),
+    )
 }
 fn local_offset(naive: NaiveDateTime, zone: Tz) -> Result<FixedOffset> {
     if let Some(offset) = zone.offset_from_local_datetime(&naive).earliest() {
@@ -61,7 +81,7 @@ fn parse_local(stamp: &str) -> Result<NaiveDateTime> {
         .or_else(|_| NaiveDateTime::parse_from_str(stamp, "%Y-%m-%dT%H:%M"))
         .context("Invalid hourly timestamp.")
 }
-fn rain(point: &Value) -> Value {
+fn rain(point: &Value) -> Result<Value> {
     let keys = [
         "weather_code",
         "precipitation_probability",
@@ -71,20 +91,22 @@ fn rain(point: &Value) -> Value {
     let mask = keys.iter().enumerate().fold(0, |mask, (i, key)| {
         mask | if point[key].is_number() { 1 << i } else { 0 }
     });
-    match weather_rain_likely(
-        numeric(&point[keys[0]]),
-        numeric(&point[keys[1]]),
-        numeric(&point[keys[2]]),
-        numeric(&point[keys[3]]),
-        mask,
-    ) {
-        -1 => Value::Null,
-        n => json!(n == 1),
-    }
+    Ok(
+        match weather_rain_likely(
+            numeric(&point[keys[0]])?,
+            numeric(&point[keys[1]])?,
+            numeric(&point[keys[2]])?,
+            numeric(&point[keys[3]])?,
+            mask,
+        ) {
+            -1 => Value::Null,
+            n => json!(n == 1),
+        },
+    )
 }
-fn rainy(daily: &Value) -> bool {
-    weather_rain_code(numeric(&daily["weather_code"])) == 1
-        || numeric(&daily["precipitation_probability_max"]) >= 50.
+fn rainy(daily: &Value) -> Result<bool> {
+    Ok(weather_rain_code(numeric(&daily["weather_code"])?) == 1
+        || numeric(&daily["precipitation_probability_max"])? >= 50.)
 }
 fn summaries(
     daily: &Value,
@@ -155,7 +177,7 @@ fn summaries(
             "Rain is possible around {}. Bring an umbrella.",
             etimes.join(", ")
         ));
-    } else if !detail && rainy(daily) {
+    } else if !detail && rainy(daily)? {
         ja.push("雨の可能性があります。時間帯は不明ですが、傘を持って行ってね。".into());
         en.push("Rain is possible, but timing is unknown. Bring an umbrella.".into());
     }
@@ -276,7 +298,7 @@ pub fn build_result(
                 }
                 point["time"] = json!(iso(dt, zone)?);
                 point["weather"] = json!(weather(&point["weather_code"], language));
-                point["rain_likely"] = rain(&point);
+                point["rain_likely"] = rain(&point)?;
                 if point["rain_likely"] == true {
                     // Existing intervals add one hour to the serialized fixed-offset stamp.
                     let start = DateTime::parse_from_rfc3339(point["time"].as_str().unwrap())?;
@@ -300,7 +322,7 @@ pub fn build_result(
             .iter()
             .filter(|p| !p["rain_likely"].is_null())
             .count();
-        let range = temperature(&daily["temperature_2m_max"], &daily["temperature_2m_min"]);
+        let range = temperature(&daily["temperature_2m_max"], &daily["temperature_2m_min"])?;
         let (ja, en) = summaries(&daily, &intervals, known > 0, target, &range)?;
         result["summary"] = json!(if language == "ja" { &ja } else { &en });
         result["summary_ja"] = json!(ja);

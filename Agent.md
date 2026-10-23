@@ -4,12 +4,12 @@ This document is for agents using or maintaining Home Weather MCP. Human-facing 
 
 ## Runtime and configuration
 
-Source builds require Rust/cargo; the native weather core is mandatory (no Python fallback).
-Run this standalone stdio MCP server in its own virtual environment. It does not import or modify Hermes internals. macOS/Linux are supported; location-setting writes use POSIX file locks.
+Source builds require Rust/cargo. The complete runtime is Rust; Python/uv are used only for external protocol tests.
+Run the installed standalone stdio MCP executable. It does not import or modify Hermes internals. macOS/Linux are supported; location-setting writes use POSIX file locks.
 
 ```sh
-.venv/bin/python -m home_weather.server --help
-.venv/bin/python -m home_weather.server --language en
+.install/bin/home-weather-mcp --help
+.install/bin/home-weather-mcp --language en
 ```
 
 Default settings path: `~/.config/home-weather-mcp/locations.json`. Override with `--config /absolute/path/locations.json` or `HOME_WEATHER_CONFIG`.
@@ -62,15 +62,17 @@ Location updates preserve omitted fields. `additional_aliases` replaces the alte
 ## Development and CI
 
 ```sh
+cargo fetch --manifest-path native/Cargo.toml --locked
 cargo test --manifest-path native/Cargo.toml --locked --offline
+cargo build --manifest-path native/Cargo.toml --example contract_server --locked --offline
 uv sync --frozen
 uv run --frozen python scripts/check_security.py
 uv run --frozen pytest -q
-uv build
-uv run --frozen python scripts/check_dist.py
+cargo install --path native --locked --root .install
+.install/bin/home-weather-mcp --version
 ```
 
-[GitHub Actions](.github/workflows/ci.yml) runs on pushes and pull requests, using Linux/macOS and Python 3.11/3.14. It checks locked dependencies, unit and real-stdio protocol tests, wheel/source builds, MIT metadata, and release contents. Tests simulate weather APIs and require neither API credentials nor live weather access. Check the actual workflow result for the commit being reviewed.
+[GitHub Actions](.github/workflows/ci.yml) runs on pushes and pull requests, using Linux/macOS and Python 3.11/3.14. It checks locked dependencies, unit and real-stdio protocol tests, Rust formatting/lints, source installation, and the installed executable. Tests simulate weather APIs and require neither API credentials nor live weather access. Check the actual workflow result for the commit being reviewed.
 
 ## Structured temperature range
 
@@ -86,4 +88,4 @@ The value is the daily maximum minus minimum temperature in Celsius, not a chang
 
 The daily/hourly retrieval and rain/temperature advice originated from the StackChan_EX_Amigo weather service design. This independent version excludes its scheduler, conversation routing, journal, and weather cache. Do not distribute personal settings or client configuration backups.
 
-Protocol implementation: [official MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk).
+Protocol implementation: [official MCP Rust SDK](https://github.com/modelcontextprotocol/rust-sdk).

@@ -16,13 +16,12 @@ Ask Hermes for the weather at up to three places you choose. Powered by Open-Met
 
 ## Setup
 
-You need macOS or Linux, Python 3.11 or newer, [uv](https://docs.astral.sh/uv/) >= 0.13.4, [Rust](https://rust-lang.org/tools/install/) (cargo), and an internet connection.
+You need macOS or Linux, [Rust](https://rust-lang.org/tools/install/) (cargo), and an internet connection to build. The installed server runs without Python or uv. Linux builds also need a C compiler, pkg-config, and OpenSSL development headers.
 
 ```sh
 git clone https://github.com/yukincom/home-weather-mcp.git
 cd home-weather-mcp
-uv sync --frozen
-uv run --frozen python scripts/check_security.py
+cargo install --path native --locked --root .install
 ```
 
 Add the following entry under `mcp_servers` in Hermes's `config.yaml`. Replace `/absolute/path/home-weather-mcp` with the absolute path to your checkout, and keep your existing server entries.
@@ -30,8 +29,8 @@ Add the following entry under `mcp_servers` in Hermes's `config.yaml`. Replace `
 ```yaml
 mcp_servers:
   home_weather:
-    command: /absolute/path/home-weather-mcp/.venv/bin/python
-    args: ["-m", "home_weather.server", "--language", "en"]
+    command: /absolute/path/home-weather-mcp/.install/bin/home-weather-mcp
+    args: ["--language", "en"]
     enabled: true
     timeout: 60
     connect_timeout: 20
@@ -61,6 +60,4 @@ The software uses the [MIT License](LICENSE). Weather data is provided by [Open-
 
 Agent and development reference: [Agent.md](Agent.md).
 
-Security update / セキュリティ更新: [2026-10-23 migration](docs/2026-10-23-security.md).
-
-Rust migration / Rust移行: [0.3.0 notes](docs/2026-10-23-rust.md).
+Rust migration / Rust移行: [0.4.0 notes](docs/2026-10-23-full-rust.md).

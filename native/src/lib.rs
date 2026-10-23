@@ -1,12 +1,6 @@
-//! Pure weather calculations. No allocation across the ABI, I/O, or TLS.
+//! Weather calculations and standalone MCP server components.
 
-#[no_mangle]
-pub extern "C" fn weather_core_abi() -> u32 {
-    1
-}
-
-#[no_mangle]
-pub extern "C" fn weather_temperature_range(high: f64, low: f64) -> f64 {
+pub fn weather_temperature_range(high: f64, low: f64) -> f64 {
     if !high.is_finite() || !low.is_finite() || high < low {
         return f64::NAN;
     }
@@ -18,8 +12,7 @@ pub extern "C" fn weather_temperature_range(high: f64, low: f64) -> f64 {
     format!("{delta:.10}").parse().unwrap_or(f64::NAN)
 }
 
-#[no_mangle]
-pub extern "C" fn weather_is_large(delta: f64) -> i32 {
+pub fn weather_is_large(delta: f64) -> i32 {
     if !delta.is_finite() {
         -1
     } else {
@@ -27,8 +20,7 @@ pub extern "C" fn weather_is_large(delta: f64) -> i32 {
     }
 }
 
-#[no_mangle]
-pub extern "C" fn weather_rain_code(code: f64) -> i32 {
+pub fn weather_rain_code(code: f64) -> i32 {
     i32::from(
         [
             51., 53., 55., 56., 57., 61., 63., 65., 66., 67., 80., 81., 82., 95., 96., 99.,
@@ -38,14 +30,7 @@ pub extern "C" fn weather_rain_code(code: f64) -> i32 {
 }
 
 /// Mask bits indicate original numeric values, distinguishing missing from NaN.
-#[no_mangle]
-pub extern "C" fn weather_rain_likely(
-    code: f64,
-    probability: f64,
-    rain: f64,
-    showers: f64,
-    mask: u32,
-) -> i32 {
+pub fn weather_rain_likely(code: f64, probability: f64, rain: f64, showers: f64, mask: u32) -> i32 {
     if mask & 15 == 0 {
         return -1;
     }
@@ -57,8 +42,7 @@ pub extern "C" fn weather_rain_likely(
     )
 }
 
-#[no_mangle]
-pub extern "C" fn weather_heat_category(high: f64) -> u32 {
+pub fn weather_heat_category(high: f64) -> u32 {
     if high <= 10. {
         0
     } else if high <= 18. {

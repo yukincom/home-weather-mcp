@@ -16,3 +16,5 @@ work/
 native/target/
 src/home_weather/*.dylib
 src/home_weather/*.so
+
+.install/

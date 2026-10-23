@@ -28,9 +28,13 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - name: Install Rust
-        run: rustup toolchain install 1.99.1 --profile minimal && rustup default 1.99.1
+        run: rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy && rustup default 1.99.1
       - name: Fetch locked Rust dependencies
         run: cargo fetch --manifest-path native/Cargo.toml --locked
+      - name: Check Rust formatting and lints
+        run: |
+          cargo fmt --manifest-path native/Cargo.toml --check
+          cargo clippy --manifest-path native/Cargo.toml --all-targets --locked --offline -- -D warnings
       - name: Build Rust contract test host
         run: cargo build --manifest-path native/Cargo.toml --example contract_server --locked --offline
       - name: Test Rust core
@@ -41,7 +45,12 @@ jobs:
         run: uv run --frozen python scripts/check_security.py
       - name: Test
         run: uv run --frozen pytest -q
-      - name: Build distributions
-        run: uv build
-      - name: Check release contents
-        run: uv run --frozen python scripts/check_dist.py
+      - name: Install standalone executable with explicit host and custom target directory
+        shell: bash
+        run: |
+          host=$(rustc -vV | sed -n 's/^host: //p')
+          CARGO_TARGET_DIR="$RUNNER_TEMP/weather-target" cargo install --path native --locked --offline --target "$host" --root .install
+          .install/bin/home-weather-mcp --version
+          .install/bin/home-weather-mcp --help
+      - name: Test installed executable
+        run: WEATHER_BINARY="$PWD/.install/bin/home-weather-mcp" uv run --frozen pytest -q

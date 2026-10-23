@@ -1,10 +1,7 @@
 """Check installed CA and optional package installers without network access."""
 from importlib.metadata import PackageNotFoundError, version
 from packaging.version import Version
-from home_weather.security import require_safe_certifi
-
-require_safe_certifi()
-for package, minimum in (("pip", "26.2.2"), ("uv", "0.13.4")):
+for package, minimum in (("certifi", "2026.10.19"), ("pip", "26.2.2"), ("uv", "0.13.4")):
     try:
         installed = version(package)
     except PackageNotFoundError:
