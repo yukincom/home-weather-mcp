@@ -72,7 +72,7 @@ cargo install --path native --locked --root .install
 .install/bin/home-weather-mcp --version
 ```
 
-[GitHub Actions](.github/workflows/ci.yml) runs on pushes and pull requests, using Linux/macOS and Python 3.11/3.14. It checks locked dependencies, unit and real-stdio protocol tests, Rust formatting/lints, source installation, and the installed executable. Tests simulate weather APIs and require neither API credentials nor live weather access. Check the actual workflow result for the commit being reviewed.
+[GitHub Actions](.github/workflows/ci.yml) runs only on pushes (no schedule, pull-request, or manual trigger), using Linux/macOS and Python 3.11/3.14. It checks locked dependencies, unit and real-stdio protocol tests, Rust formatting/lints, source installation, and the installed executable. Tests simulate weather APIs and require neither API credentials nor live weather access. Check the actual workflow result for the commit being reviewed.
 
 ## Structured temperature range
 
