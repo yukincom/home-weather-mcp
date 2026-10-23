@@ -6,7 +6,7 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-dependencies = ["mcp>=1.26,<2", "httpx>=0.28,<0.29"]
+dependencies = ["mcp>=1.26,<2", "httpx>=0.28,<0.29", "certifi>=2026.10.19", "packaging>=24"]
 
 [project.scripts]
 home-weather-mcp = "home_weather.server:main"
@@ -23,3 +23,6 @@ dev = ["pytest>=8,<9"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.uv]
+required-version = ">=0.13.4"

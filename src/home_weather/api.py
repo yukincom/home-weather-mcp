@@ -4,6 +4,7 @@ import re
 import hashlib
 import httpx
 from .locations import clean_name
+from .security import require_safe_certifi
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
@@ -11,6 +12,7 @@ GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 
 class WeatherAPI:
     def __init__(self, client=None):
+        require_safe_certifi()
         self.client = client or httpx.Client(timeout=10, headers={"User-Agent": "home-weather-mcp/0.2 (personal use)"})
 
     def get(self, url, params, allow_list=False):

@@ -16,12 +16,13 @@
 
 ## 導入
 
-macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/)、インターネット接続が必要です。
+macOSまたはLinux、Python 3.11以上、[uv](https://docs.astral.sh/uv/) >= 0.13.4、インターネット接続が必要です。
 
 ```sh
 git clone https://github.com/yukincom/home-weather-mcp.git
 cd home-weather-mcp
 uv sync --frozen
+uv run --frozen python scripts/check_security.py
 ```
 
 Hermesの`config.yaml`の既存の`mcp_servers`へ次の項目を追加してください。`/absolute/path/home-weather-mcp`は取得したフォルダの絶対パスに置き換え、既存の接続設定はそのまま残します。
@@ -59,3 +60,5 @@ mcp_servers:
 ソフトウェアは[MITライセンス](LICENSE)です。天気は[Open-Meteo](https://open-meteo.com/)を利用し、[同サービスの利用条件・出典表示](https://open-meteo.com/en/pricing)に従います。地名検索には[Open-Meteo経由のGeoNames](https://open-meteo.com/en/docs/geocoding-api)と、必要に応じて[国土地理院](https://github.com/gsi-cyberjapan/gsimaps/issues/29)を使います。
 
 エージェント・開発向けの資料：[Agent.md](Agent.md)。
+
+Security update / セキュリティ更新: [2026-10-23 migration](docs/2026-10-23-security.md).
